@@ -8,7 +8,7 @@ void scanner(std::string input, std::vector<std::string> &tokens) {
 	std::vector<std::string>().swap(tokens); // free mem & replace with empty 1
 	std::size_t pos = input.find("\"");
 	if (pos != std::string::npos) { // if char(") found in input str
-// gotta check to see if quotations match,  fuck this shit	
+// gotta check to see if quotations match	
 	} 
 	pos = input.find("'");
 	if (pos != std::string::npos) { // if char(') found in input str

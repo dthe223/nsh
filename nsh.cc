@@ -16,5 +16,6 @@ int main() {
 		std::cout << prompt;
 		std::getline(std::cin, userin);
 	}
+
 	return 0;
 }
