@@ -11,8 +11,11 @@ int main() {
 	std::cout << prompt;
 	std::getline(std::cin, userin);
 	while (userin != "done" && userin != "<control-D>") {
-		std::cout << "userin is \"" << userin << "\"\n";
 		scanner(userin, tokens);
+		//std::cout << "The tokens are";
+		//for (int i=0; i<tokens.size();i+=1)
+		//	std::cout << " " << tokens[i];
+		//std::cout << '\n';
 		std::cout << prompt;
 		std::getline(std::cin, userin);
 	}
