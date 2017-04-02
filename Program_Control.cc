@@ -4,34 +4,61 @@
 #include <vector>
 #include <iostream>
 
+void do_Command(std::vector<std::string> &tokens) {
+	pid_t pid, wpid;
+	int status;
+
+	if (((pid == fork())) >0 ) {			// parent process
+		
+	} else if (((pid == fork())) == 0) {	// child process
+
+	} else {								// error forking
+
+	}
+}
+
 void scanner(std::string input, std::vector<std::string> &tokens) {
 	std::vector<std::string>().swap(tokens); // free mem & replace with empty 1
-	std::cout << tokens.size() << '\n';
 	// Check for usage of quotes
+	// one "two \" two"
 	std::size_t pos1 = input.find("\""), pos2=1;
-	while (pos1 != std::string::npos && (pos1 != 0 && pos2 != 0)) { // if char(") is found in input str
-		std::cout << "butt1:   pos1 = " << pos1 << "\n";
-		if (input.substr(pos1-1,1) != "\\") {
-			std::cout << "butt2\n";
-			std::cout << "input.substr(" << pos1 << "-1,1) = \"" << input.substr(pos1-1,1) << "\"\n";
+	int firstQuote = -1, secondQuote = -1;
+	while (pos1 != std::string::npos && pos2 != std::string::npos) {//&& (pos1 != 0 && pos2 != 0)) { // if char(") is found in input str
+		std::cout << "pos1 = " << pos1 << "\n";
+		std::cout << "firstQuote = " << firstQuote << "\n";
+		if (input[pos1-1] != '\\') {
+			std::cout << "input[pos1-1] = '" << input[pos1-1] << "'\n";
+			if (firstQuote == -1)
+				firstQuote = pos1;
 			pos2 = input.find("\"", pos1+1);
 			if (pos2 == std::string::npos) {
 				std::cerr << "Quotations do not match\n";
 				return;
 			}
-			if (input.substr(pos2-1,1) != "\\") { 	// FOR SOME REASON DOESN'T ENTER HERE
-				std::cout << "butt3:   pos2 = " << pos2 << "\n";
-				tokens.push_back(input.substr(0,pos1));
+			std::cout << "input[pos2-1] = '" << input[pos2-1] << "'\n";
+			if (input[pos2-1] != '\\') {
+				std::cout << "pos2 = " << pos2 << "\n";
+				std::cout << "input.substr(0,firstQuote) = \"" << input.substr(0,firstQuote) << "\"\n";
+				tokens.push_back(input.substr(0,firstQuote));
 				std::cout << tokens.size() << '\n';
-				tokens.push_back(input.substr(pos1, pos2-pos1));
+				std::cout << "input.substr(firstQuote,pos2-firstQuote) = \"" << input.substr(firstQuote,pos2-firstQuote) << "\"\n";
+				tokens.push_back(input.substr(firstQuote+1, pos2-firstQuote));
 				std::cout << tokens.size() << '\n';
 				std::cout << "input is \"" << input << "\"\t";
 				input = input.substr(pos2+1);	// pos2 until end
 				std::cout << "input is \"" << input << "\"\n";
+				firstQuote = -1;
 				pos1 = input.find("\"");
 			}
-			else
+			else if (pos2+1 != input.size())	// if quote isn't at end, continue
 				pos1 = input.find("\"", pos2+1);
+			else {								// if at end, pos1 = npos to stop while
+				if (input[input.size()-1] == '"' && firstQuote != -1) {
+					tokens.push_back(input.substr(0,firstQuote));
+					tokens.push_back(input.substr(firstQuote+1, pos2-firstQuote));
+				}
+				pos1 = std::string::npos;
+			}
 		}
 	}
 	if (tokens.empty()) // if no char(") was found

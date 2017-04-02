@@ -4,9 +4,13 @@ OBJECTS = nsh.o Program_Control.o
 	  #(listing all header file here, separated by spaces)
 nsh: $(OBJECTS)
 	clear
-	@g++ $^ -o nsh
-	@./nsh
+	@g++ -Wall -g $^ -o nsh
+	@./nsh # < testCmds.txt
 %.o: %.cpp $(HEADERS)
 	@g++ -c $< -o $@
 clean:
 	rm -f *.o nsh
+g: $(OBJECTS)
+	clear
+	@g++ -Wall -g $^ -o nsh
+	@gdb nsh

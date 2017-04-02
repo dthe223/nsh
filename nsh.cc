@@ -12,6 +12,9 @@ int main() {
 	std::getline(std::cin, userin);
 	while (userin != "done" && userin != "<control-D>") {
 		scanner(userin, tokens);
+
+		if (tokens[0] == "do")
+			do_Command(tokens);
 		//std::cout << "The tokens are";
 		//for (int i=0; i<tokens.size();i+=1)
 		//	std::cout << " " << tokens[i];
