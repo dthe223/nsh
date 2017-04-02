@@ -3,18 +3,24 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <sys/wait.h>	// waitpid()
+#include <sys/types.h>	// waitpid()
+#include <unistd.h>		// fork(),exec(),pid_t,chdir()
+#include <stdlib.h>		// exit()
 
 void do_Command(std::vector<std::string> &tokens) {
-	pid_t pid, wpid;
-	int status;
-
-	if (((pid == fork())) >0 ) {			// parent process
-		
-	} else if (((pid == fork())) == 0) {	// child process
-
-	} else {								// error forking
-
+	pid_t pid = fork();
+	
+	if (pid > 0) {			// parent
+		int status;
+		waitpid(pid, &status, 0);
+	} else if (pid == 0) {	// child
+		execv(&tokens[1], &tokens[1]);
+	} else {
+		std::cerr << tokens[1];
+		exit(1);
 	}
+	return;
 }
 
 void scanner(std::string input, std::vector<std::string> &tokens) {

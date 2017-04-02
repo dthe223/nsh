@@ -15,6 +15,7 @@ int main() {
 
 		if (tokens[0] == "do")
 			do_Command(tokens);
+
 		//std::cout << "The tokens are";
 		//for (int i=0; i<tokens.size();i+=1)
 		//	std::cout << " " << tokens[i];
