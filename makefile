@@ -1,6 +1,6 @@
-OBJECTS = nsh.o Program_Control.o
+OBJECTS = nsh.o Program_Control.o Builtin_Cmds.o
 	  #(listing all of you object files here, separated by space)
-#HEADERS = Program_Control.h
+#HEADERS = Program_Control.h Builtin_Cmds.h
 	  #(listing all header file here, separated by spaces)
 nsh: $(OBJECTS)
 	clear

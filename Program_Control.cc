@@ -9,21 +9,31 @@
 #include <stdlib.h>		// exit()
 
 void do_Command(std::vector<std::string> &tokens) {
-	pid_t pid = fork();
 	
-	if (pid > 0) {			// parent
-		int status;
-		waitpid(pid, &status, 0);
-	} else if (pid == 0) {	// child
-		execv(&tokens[1], &tokens[1]);
-	} else {
-		std::cerr << tokens[1];
-		exit(1);
-	}
+	//const char *cmdName = tokens[1];
+	//const char **argv = new const char* [tokens.size()+1];
+	//argv[0] = cmdName;
+	//for (int i = 1; i < tokens.size()+1; i+=1)
+	//	argv[i+1] = tokens[i].c_str();
+	//argv[tokens.size()+1] = NULL;
+	//
+	//pid_t pid = fork();
+	//if (pid > 0) {			// parent
+	//	int status;
+	//	waitpid(pid, &status, 0);
+	//} else if (pid == 0) {	// child
+	//	execv(cmdName, (char**)argv);
+	//	std::cerr << cmdName;		// exec shouldn't return
+	//	exit(1);
+	//} else {
+	//	std::cerr << cmdName;
+	//	exit(1);
+	//}
 	return;
 }
 
-void scanner(std::string input, std::vector<std::string> &tokens) {
+void scanner(std::string input, std::vector<std::string> &tokens) {		// NEEDS TO IGNORE ALL WHITESPACE B/W TOKENS AND NEEDS
+																		// TO ACCEPT \" IN THE MIDDLE OF QUOTATIONS
 	std::vector<std::string>().swap(tokens); // free mem & replace with empty 1
 	// Check for usage of quotes
 	// one "two \" two"

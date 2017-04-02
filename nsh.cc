@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include "Program_Control.h"
-//using namespace std;
+#include "Builtin_Cmds.h"
 
 int main() {
 
@@ -15,6 +15,9 @@ int main() {
 
 		if (tokens[0] == "do")
 			do_Command(tokens);
+
+		else if (tokens[0] == "prompt")
+			prompt_Change(prompt, tokens);
 
 		//std::cout << "The tokens are";
 		//for (int i=0; i<tokens.size();i+=1)
