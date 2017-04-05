@@ -11,21 +11,22 @@ int main() {
 	std::cout << prompt;
 	std::getline(std::cin, userin);
 	while (userin != "done" && userin != "<control-D>") {
-		scanner(userin, tokens);
+		if (scanner(userin, tokens) == 0) { 	// if return no error, proceed
+			//std::cout << "There are " << tokens.size() << " tokens\n";
 
-		if (tokens[0] == "do")
-			do_Command(tokens);
+			if (tokens[0] == "do")
+				do_Command(tokens);
 
-		else if (tokens[0] == "prompt")
-			prompt_Change(prompt, tokens);
+			else if (tokens[0] == "prompt")
+				prompt_Change(prompt, tokens);
 
-		//std::cout << "The tokens are";
-		//for (int i=0; i<tokens.size();i+=1)
-		//	std::cout << " " << tokens[i];
-		//std::cout << '\n';
+			//std::cout << "The tokens are";
+			//for (int i=0; i<tokens.size();i+=1)
+			//	std::cout << " " << tokens[i];
+			//std::cout << '\n';
+		}
 		std::cout << prompt;
 		std::getline(std::cin, userin);
 	}
-
 	return 0;
 }

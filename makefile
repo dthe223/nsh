@@ -12,5 +12,5 @@ clean:
 	rm -f *.o nsh
 g: $(OBJECTS)
 	clear
-	@g++ -Wall -g $^ -o nsh
+	@g++ -Wall -g nsh.cc Program_Control.cc Builtin_Cmds.cc -o nsh
 	@gdb nsh
