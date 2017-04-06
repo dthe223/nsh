@@ -2,11 +2,56 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <iostream>
+#include <stdio.h>
 #include <sys/wait.h>	// waitpid()
 #include <sys/types.h>	// waitpid()
 #include <unistd.h>		// fork(),exec(),pid_t,chdir()
 #include <stdlib.h>		// exit()
+#include <fcntl.h>	// open("/dev/null", STDOUT_FILENO)
+
+void to_Var(std::vector<std::string> &tokens) {
+	std::streambuf * sbuf = std::cout.rdbuf();
+	std::ostringstream oss;
+	close(2);
+	std::cout.rdbuf(oss.rdbuf());
+	std::string name = tokens[1];
+	tokens.erase(tokens.begin()+1);
+	do_Command(tokens);
+	std::string value = oss.str();
+	std::cout.rdbuf(sbuf);
+}
+
+void back_Command(std::vector<std::string> &tokens, std::map<int, std::string> &processes) {
+	char *argv[tokens.size()];
+	for (int i = 1; i < tokens.size(); i+=1)
+		argv[i-1] = const_cast<char *>(tokens[i].c_str());
+	argv[tokens.size()-1] = NULL;
+	
+	pid_t pid = fork();
+	if (pid == 0) {	// child
+
+		int fd;
+		fd = open("/dev/null", O_WRONLY);
+		dup2(fd, 1);
+		close(fd);
+
+		if (tokens[1][0] == '/' || tokens[1].substr(0,2) == "./" || tokens[1].substr(0,3) == "../")
+			execv(argv[0], argv);
+		else
+			execvp(argv[0], argv);
+
+		std::cerr << "ERROR: Could not execute command \"" << argv[0] << "\"\n";		// exec shouldn't return
+		exit(1);
+	} else if (pid < 0) {
+		std::cerr << "ERROR: Could not execute fork for \"" << argv[0] << "\"\n";
+		exit(1);
+	} else {		// parent
+		processes[pid] = "In Progress";
+	}
+	return;
+}
 
 void do_Command(std::vector<std::string> &tokens) {
 	
@@ -20,7 +65,33 @@ void do_Command(std::vector<std::string> &tokens) {
 		int status;
 		waitpid(pid, &status, 0);
 	} else if (pid == 0) {	// child
-		execvp(argv[0], argv);
+		bool multiDirectories = false;
+		std::vector<std::string> directories;
+		char *directs[256];
+		if (tokens[1].find(":") != std::string::npos) {
+			split(directories, tokens[1], ':');
+			multiDirectories = true;
+
+			for (int i = 0; i < directories.size(); i+=1) {
+				argv[i] = const_cast<char *>(directories[i].c_str());
+			argv[directories.size()] = NULL;
+			}
+		}
+		
+		if (multiDirectories) {
+			for (int i = 0; i < directories.size(); i+=1) {
+				if (tokens[1][0] == '/' || tokens[1].substr(0,2) == "./" || tokens[1].substr(0,3) == "../")
+					execv(directs[i], argv);
+				else
+					execvp(directs[i], argv);
+			}
+		} else {
+			if (tokens[1][0] == '/' || tokens[1].substr(0,2) == "./" || tokens[1].substr(0,3) == "../")
+				execv(argv[0], argv);
+			else
+				execvp(argv[0], argv);
+		}
+
 		std::cerr << "ERROR: Could not execute command \"" << argv[0] << "\"\n";		// exec shouldn't return
 		exit(1);
 	} else {
@@ -30,8 +101,7 @@ void do_Command(std::vector<std::string> &tokens) {
 	return;
 }
 
-int scanner(std::string input, std::vector<std::string> &tokens) {		// NEEDS TO IGNORE ALL WHITESPACE B/W TOKENS AND NEEDS
-																		// TO ACCEPT \" IN THE MIDDLE OF QUOTATIONS
+int scanner(std::string input, std::vector<std::string> &tokens) {
 	std::vector<std::string>().swap(tokens); // free mem & replace with empty 1
 	std::vector<std::string> currTokens;	// tokens split at quotes
 	std::vector<bool> quoteTokens;		// keeps track of if each token is a quote or not
