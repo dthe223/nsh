@@ -16,32 +16,31 @@ void to_Var(std::vector<std::string> &tokens, std::map<std::string, std::string>
 	for (int i = 2; i < tokens.size()-1; i+=1)
 		argv[i-1] = const_cast<char *>(tokens[i].c_str());
 	argv[tokens.size()-1] = NULL;
+	pid_t pid = fork();
 
-	int pipefd[2];
-	pipe(pipefd);
-
-	if (fork() == 0) {
-		close(pipefd[0]);
-
-		dup2(pipefd[1], 1);
-		dup2(pipefd[1], 2);
-
-		close(pipefd[1]);
-
-		if (tokens[1][0] == '/' || tokens[1].substr(0,2) == "./" || tokens[1].substr(0,3) == "../")
-			execv(argv[0], argv);
-		else
-			execvp(argv[0], argv);
-		std::cerr << "ERROR: Could not execute command \"" << argv[0] << "\"\n";
-		exit(1);
-	} else {
-		char buffer[1024];
-
-		close(pipefd[1]);
-
-		while (read(pipefd[0], buffer, sizeof(buffer)) != 0) {}
-
-		userVars[tokens[1]] = buffer;
+	if (pid == 0) {
+	close(1);
+	open("output.o", O_WRONLY | O_TRUNC | O_CREAT, 0666);
+	if (tokens[1][0] == '/' || tokens[1].substr(0,2) == "./" || tokens[1].substr(0,3) == "../")
+		execv(argv[0], argv);
+	else
+		execvp(argv[0], argv);
+	std::cerr << "ERROR: Could not execute command \"" << argv[0] << "\"\n";
+	exit(1);
+	} else if (pid > 0) {
+		waitpid(pid, NULL, 0);
+		FILE *infile = fopen("output.o", "r");
+		char mystr[1024];
+		std::string value = "";
+		if (!infile)
+			std::cerr << "ERROR: output.o cannot be opened\n";
+		else {
+			while(fgets(mystr, 256, infile))
+				value.append(mystr);
+			value.append(mystr);
+			userVars[tokens[1]] = value;
+			fclose(infile);
+		}
 	}
 }
 
@@ -136,7 +135,7 @@ int scanner(std::string input, std::vector<std::string> &tokens, std::map<std::s
 	std::size_t varSym = input.find("$");
 	if (varSym != std::string::npos && input[varSym-1] == ' ') {
 		//if (input.find(" ", 
-		if (userVars.find(input.substr(varSym, input.find(" ",varSym)-varSym-1)) != userVar.end()) {
+		if (userVars.find(input.substr(varSym, input.find(" ",varSym)-varSym-1)) != userVars.end()) {
 			
 		}
 	}

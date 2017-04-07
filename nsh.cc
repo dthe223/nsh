@@ -16,7 +16,7 @@ int main() {
 	std::getline(std::cin, userin);
 	while (userin != "done" && userin != "<control-D>") {
 		if (!std::cin.bad() && std::cin.eof()) return(0);
-		if (scanner(userin, tokens) == 0) { 	// if return no error, proceed
+		if (scanner(userin, tokens, userVars) == 0) { 	// if return no error, proceed
 
 			if (tokens[0] == "do")
 				do_Command(tokens);
