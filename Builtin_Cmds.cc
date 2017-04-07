@@ -73,7 +73,7 @@ void procs(std::map<int, std::string> &processes) {
 }
 
 void display_Vars(std::map<std::string, std::string> &userVars) {
+	std::cout << "User Variables:\n";
 	for(std::map<std::string, std::string>::const_iterator i = userVars.begin(); i != userVars.end(); ++i)
-		continue;
-
+		std::cout << i->first << " : " << i->second << '\n';
 }

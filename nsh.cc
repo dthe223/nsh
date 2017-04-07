@@ -6,20 +6,12 @@
 #include "Program_Control.h"
 #include "Builtin_Cmds.h"
 
-std::map<int, std::string> processes;
-
-void kid_finisher(int sig) {
-	pid_t pid = wait(NULL);
-	processes[pid] = "Completed";
-}
-
 int main() {
 
 	std::string prompt = "nsh> ", userin = "";
 	std::vector<std::string> tokens;
+	std::map<int, std::string> processes;
 	std::map<std::string, std::string> userVars;
-	//std::map<int, std::string> processes;
-	signal(SIGCHLD, kid_finisher);
 	std::cout << prompt;
 	std::getline(std::cin, userin);
 	while (userin != "done" && userin != "<control-D>") {
@@ -31,7 +23,7 @@ int main() {
 			else if (tokens[0] == "back")
 				back_Command(tokens, processes);
 			else if (tokens[0] == "tovar")
-				to_Var(tokens);
+				to_Var(tokens, userVars);
 			else if (tokens[0] == "prompt")
 				prompt_Change(prompt, tokens);
 			else if (tokens[0] == "set")
@@ -40,6 +32,8 @@ int main() {
 				dir(tokens);
 			else if (tokens[0] == "procs")
 				procs(processes);
+			else if (tokens[0] == "display")
+				display_Vars(userVars);
 
 		}
 		std::cout << prompt;

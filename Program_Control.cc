@@ -11,16 +11,38 @@
 #include <stdlib.h>		// exit()
 #include <fcntl.h>	// open("/dev/null", STDOUT_FILENO)
 
-void to_Var(std::vector<std::string> &tokens) {
-	std::streambuf * sbuf = std::cout.rdbuf();
-	std::ostringstream oss;
-	close(2);
-	std::cout.rdbuf(oss.rdbuf());
-	std::string name = tokens[1];
-	tokens.erase(tokens.begin()+1);
-	do_Command(tokens);
-	std::string value = oss.str();
-	std::cout.rdbuf(sbuf);
+void to_Var(std::vector<std::string> &tokens, std::map<std::string, std::string> &userVars) {
+	char *argv[tokens.size()-1];
+	for (int i = 2; i < tokens.size()-1; i+=1)
+		argv[i-1] = const_cast<char *>(tokens[i].c_str());
+	argv[tokens.size()-1] = NULL;
+
+	int pipefd[2];
+	pipe(pipefd);
+
+	if (fork() == 0) {
+		close(pipefd[0]);
+
+		dup2(pipefd[1], 1);
+		dup2(pipefd[1], 2);
+
+		close(pipefd[1]);
+
+		if (tokens[1][0] == '/' || tokens[1].substr(0,2) == "./" || tokens[1].substr(0,3) == "../")
+			execv(argv[0], argv);
+		else
+			execvp(argv[0], argv);
+		std::cerr << "ERROR: Could not execute command \"" << argv[0] << "\"\n";
+		exit(1);
+	} else {
+		char buffer[1024];
+
+		close(pipefd[1]);
+
+		while (read(pipefd[0], buffer, sizeof(buffer)) != 0) {}
+
+		userVars[tokens[1]] = buffer;
+	}
 }
 
 void back_Command(std::vector<std::string> &tokens, std::map<int, std::string> &processes) {
@@ -105,6 +127,17 @@ int scanner(std::string input, std::vector<std::string> &tokens) {
 	std::vector<std::string>().swap(tokens); // free mem & replace with empty 1
 	std::vector<std::string> currTokens;	// tokens split at quotes
 	std::vector<bool> quoteTokens;		// keeps track of if each token is a quote or not
+
+	// if (%) in input, then truncate at that pos, as it is a comment
+	if (input.find("%") != std::string::npos)
+		input = input.substr(0,input.find("%"));
+
+	// Check for any variables (start with $)
+	std::size_t varSym = input.find("$");
+	if (varSym != std::string::npos && input[varSym-1] == ' ') {
+		
+	}
+
 	// Check for usage of quotes
 	// one "two \" two"
 	std::size_t pos1 = input.find("\""), pos2=1, firstQuote=-1, secondQuote=-1;
