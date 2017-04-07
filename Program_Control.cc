@@ -123,7 +123,7 @@ void do_Command(std::vector<std::string> &tokens) {
 	return;
 }
 
-int scanner(std::string input, std::vector<std::string> &tokens) {
+int scanner(std::string input, std::vector<std::string> &tokens, std::map<std::string, std::string> &userVars) {
 	std::vector<std::string>().swap(tokens); // free mem & replace with empty 1
 	std::vector<std::string> currTokens;	// tokens split at quotes
 	std::vector<bool> quoteTokens;		// keeps track of if each token is a quote or not
@@ -135,7 +135,10 @@ int scanner(std::string input, std::vector<std::string> &tokens) {
 	// Check for any variables (start with $)
 	std::size_t varSym = input.find("$");
 	if (varSym != std::string::npos && input[varSym-1] == ' ') {
-		
+		//if (input.find(" ", 
+		if (userVars.find(input.substr(varSym, input.find(" ",varSym)-varSym-1)) != userVar.end()) {
+			
+		}
 	}
 
 	// Check for usage of quotes
