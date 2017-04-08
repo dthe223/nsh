@@ -34,7 +34,8 @@ int main() {
 				procs(processes);
 			else if (tokens[0] == "display")
 				display_Vars(userVars);
-
+			else
+				std::cerr << "Not a valid command input\n";
 		}
 		std::cout << prompt;
 		std::getline(std::cin, userin);

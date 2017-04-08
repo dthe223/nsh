@@ -5,7 +5,7 @@ OBJECTS = nsh.o Program_Control.o Builtin_Cmds.o
 nsh: $(OBJECTS)
 	clear
 	@g++ -Wall -g $^ -o nsh
-	@./nsh # < testCmds.txt
+	@./nsh #< test.txt
 %.o: %.cpp $(HEADERS)
 	@g++ -c $< -o $@
 clean:
