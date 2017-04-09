@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <unistd.h>
+#include <sstream>
 #include <sys/param.h>
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -53,24 +54,23 @@ void dir(std::vector<std::string> &tokens) {
 	}
 }
 
-void procs(std::map<int, std::string> &processes) {
+void procs(std::map<int, std::string> &processes, std::vector<std::string> &procNames) {
 	int status;
 	if(processes.empty())
 	{
 		std::cout << "No processes are running in the background" << std::endl;
 		return;
 	}
-	std::cout << "\n\tBackground Processes \nProcess ID\tStatus\n";
-	for(std::map<int, std::string>::const_iterator i = processes.begin(); i != processes.end(); ++i) {
-		if (waitpid(i->first, &status, WNOHANG))
-			processes[i->first] = "Completed";
-		std::cout << "   " << i->first;
-		std::cout << "\t\t(" << i->second << ")" << '\n';
-		//if(waitpid(proglist[i], &status, WNOHANG))
-		//{
-		//	std::cout << "(completed)" << std::endl;
-		//	proglist.erase(proglist.begin()+i);
-		//}
+	std::cout << "\n\tBackground Processes \nProcess ID\tStatus\t\t   Name\n";
+	for (int i = 0; i < procNames.size(); i+=1) {
+		std::istringstream buf (procNames[i].substr(0, procNames[i].find(":")));
+		int currPid;
+		buf >> currPid;
+		if (waitpid(currPid, &status, WNOHANG))
+			processes[currPid] = "Completed";
+		std::cout << "   " << currPid;
+		std::cout << "\t\t(" << processes[currPid] << ")\t   ";
+		std::cout << procNames[i].substr(procNames[i].find(":")+1) << '\n';
 	}
 	std::cout << '\n';
 }

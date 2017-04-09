@@ -12,29 +12,31 @@
 #include <stdlib.h>		// exit()
 #include <fcntl.h>	// open("/dev/null", STDOUT_FILENO)
 
+#define BUFFER 4096
+
 void to_Var(std::vector<std::string> &tokens, std::map<std::string, std::string> &userVars) {
 	char *argv[tokens.size()-1];
-	for (int i = 2; i < tokens.size(); i+=1)
+	for (int i = 2; i < tokens.size(); i+=1)	// start at 2 because that is the index of the cmd and parameters
 		argv[i-2] = const_cast<char *>(tokens[i].c_str());
-	argv[tokens.size()-1] = NULL;
+	argv[tokens.size()-2] = NULL;
 
 	pid_t pid;
 	int pipefd[2];
-	char buffer[4096];
+	char buffer[BUFFER];
 	if (pipe(pipefd) == -1) {
 		std::cerr << "ERROR: Pipe failed\n";
 	}
 	pid = fork();
 
 	if (pid == 0) {
-		//dup2(pipefd[1], STDOUT_FILENO);
-		//close(pipefd[0]);
-		//close(pipefd[1]);
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(pipefd[0]);
+		close(pipefd[1]);
 
-		int fd = open("/tmp/output.o", std::ios_base::trunc);//O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-		dup2(fd, 1);
-		dup2(fd, 2);
-		close(fd);
+		//int fd = open("/tmp/output.o", std::ios_base::trunc);//O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+		//dup2(fd, 1);
+		//dup2(fd, 2);
+		//close(fd);
 
 		if (tokens[1][0] == '/' || tokens[1].substr(0,2) == "./" || tokens[1].substr(0,3) == "../")
 			execv(argv[0], argv);
@@ -43,17 +45,17 @@ void to_Var(std::vector<std::string> &tokens, std::map<std::string, std::string>
 		std::cerr << "ERROR: Could not execute command \"" << argv[0] << "\"\n";
 		exit(1);
 	} else if (pid > 0) {
-		//close(pipefd[1]);
-		//userVars["$" + tokens[1]] = "";
-		//int nbytes = read(pipefd[0], &buffer, sizeof(buffer));
-		//userVars["$" + tokens[1]] = buffer;
-		//userVars["$" + tokens[1]].erase(nbytes-1);
-		
-		std::ifstream file ("/tmp/output.o", std::ifstream::in);
-		std::string line;
+		close(pipefd[1]);
 		userVars["$" + tokens[1]] = "";
-		while (std::getline(file, line))
-			userVars["$" + tokens[1]] += line + '\n';
+		int nbytes = read(pipefd[0], &buffer, sizeof(buffer));
+		userVars["$" + tokens[1]] = buffer;
+		userVars["$" + tokens[1]].erase(nbytes-1);
+		
+		//std::ifstream file ("/tmp/output.o", std::ifstream::in);
+		//std::string line;
+		//userVars["$" + tokens[1]] = "";
+		//while (std::getline(file, line))
+		//	userVars["$" + tokens[1]] += line;
 
 
 	} else {
@@ -62,7 +64,7 @@ void to_Var(std::vector<std::string> &tokens, std::map<std::string, std::string>
 	}
 }
 
-void back_Command(std::vector<std::string> &tokens, std::map<int, std::string> &processes) {
+void back_Command(std::vector<std::string> &tokens, std::map<int, std::string> &processes, std::vector<std::string> &procNames) {
 	char *argv[tokens.size()];
 	for (int i = 1; i < tokens.size(); i+=1)
 		argv[i-1] = const_cast<char *>(tokens[i].c_str());
@@ -88,6 +90,7 @@ void back_Command(std::vector<std::string> &tokens, std::map<int, std::string> &
 		exit(1);
 	} else {		// parent
 		processes[pid] = "In Progress";
+		procNames.push_back(toString(pid) + ":" + tokens[1]);
 	}
 	return;
 }
@@ -106,7 +109,7 @@ void do_Command(std::vector<std::string> &tokens) {
 	} else if (pid == 0) {	// child
 		bool multiDirectories = false;
 		std::vector<std::string> directories;
-		char *directs[256];
+		char *directs[BUFFER];
 		if (tokens[1].find(":") != std::string::npos) {
 			split(directories, tokens[1], ':');
 			multiDirectories = true;
@@ -140,7 +143,7 @@ void do_Command(std::vector<std::string> &tokens) {
 	return;
 }
 
-int scanner(std::string input, std::vector<std::string> &tokens, std::map<std::string, std::string> &userVars) {
+int scanner_parser(std::string input, std::vector<std::string> &tokens, std::map<std::string, std::string> &userVars) {
 	std::vector<std::string>().swap(tokens); // free mem & replace with empty 1
 	std::vector<std::string> currTokens;	// tokens split at quotes
 	std::vector<bool> quoteTokens;		// keeps track of if each token is a quote or not
@@ -264,4 +267,10 @@ void split(std::vector<std::string> &tokens, const std::string &item, char delim
 	while (std::getline(ss, temp, delim))
 		if (temp != "")
 			tokens.push_back(temp);
+}
+
+std::string toString(int item) {
+	std::ostringstream strstreamO;
+	strstreamO << item;
+	return strstreamO.str();
 }
