@@ -1,2 +1,2 @@
 # nsh
-New Shell (nsh) - shell developed in c++
+New Shell (nsh) - shell developed in C++
