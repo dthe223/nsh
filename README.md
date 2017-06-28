@@ -22,3 +22,13 @@ unix shell developed in C++
    nsh lists all processes running in the background. nsh keeps a list and does not rely on external programs to create its output.
 - `done`  
    nsh exits with exit status 0. Also accepts <control-D> (end-of-file) on the input stream and treats it as if the user had typed "done".
+
+# Program-control commands
+
+- `do cmd param*`  
+   The user submits a do command to execute a program. The keyword do must appear as the first token on the command line, followed by the command to be executed. Here, cmd is a token that specifies the filename of the program the user wants to execute. It is followed by zero or more tokens specifying parameters. nsh should wait for the program to finish before it prompts for and accepts the next command.
+nsh looks for cmd in a list of directories indicated by the variable PATH, whose value is a colon-separated list of directories. By default, PATH has value /bin:/usr/bin; the user can change that value by assigning a new value to PATH. If, however, cmd starts with a / character, it is a full path name starting at the root. Similarly, a cmd that starts with ./ is a path name starting in the current directory.
+- `back cmd param*`  
+   The back command is identical to the do command, except that the program should run in the background, that is, nsh should immediately prompt for and accept the next command.
+- `tovar variable cmd param*`  
+   The tovar command executes the program cmd along with its parameters, if any, and assigns its output to the variable specified by variable. Like the do command, the variable PATH contains a colon-separated list of directories where nsh looks for the file to be executed. The file name to be executed may also be specified as a full path name or a name relative to the current directory.
