@@ -3,15 +3,15 @@ unix shell developed in C++
 
 # Syntax
 
-nsh is somewhat similar to existing shells such as csh, bash, ksh, and tcsh. However, it lacks many of the features of those shells. It also has a different command syntax and a different command set.
+- nsh is somewhat similar to existing shells such as csh, bash, ksh, and tcsh. However, it lacks many of the features of those shells. It also has a different command syntax and a different command set.
 
-nsh takes commands from standard input and directs all its output to standard output.
+- nsh takes commands from standard input and directs all its output to standard output.
 
-Like other shells, nsh accepts both built-in commands and program-control commands.
+- Like other shells, nsh accepts both built-in commands and program-control commands.
 
-Commands are constructed out of tokens. A token can be either a single word or a string surrounded by double-quotes. Tokens are subject to variable substitution, as described below. There can be any amount of empty space before and after tokens.
+- Commands are constructed out of tokens. A token can be either a single word or a string surrounded by double-quotes. Tokens are subject to variable substitution, as described below. There can be any amount of empty space before and after tokens.
 
-The % symbol introduces a comment, which continues to the end of the line. You may assume that % never appears within a token. nsh ignores all characters in a comment. If a line is empty (except perhaps for spaces) except for a comment, it is a valid command that has no effect
+- The % symbol introduces a comment, which continues to the end of the line. You may assume that % never appears within a token. nsh ignores all characters in a comment. If a line is empty (except perhaps for spaces) except for a comment, it is a valid command that has no effect
 
 # Built-in Commands
 
