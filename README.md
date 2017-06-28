@@ -33,6 +33,10 @@ unix shell developed in C++
 - `tovar variable cmd param*`  
    The 'tovar' command executes the program 'cmd' along with its parameters, if any, and assigns its output to the variable specified by variable. Like the 'do' command, the variable PATH contains a colon-separated list of directories where nsh looks for the file to be executed. The file name to be executed may also be specified as a full path name or a name relative to the current directory.
 
+# Variable definition and substitution
+
+When nsh encounters a variable definition, such as `set variable "value"`, it stores the name and definition. Later, when it encounters '$variable', either as a token or within a string, nsh replaces '$variable' with its stored definition. It is valid to modify the definition of a variable by a later definition.
+
 # Invalid commands
 
 If the user inputs an invalid command, nsh simply prints an error message (to stderr) and prompts for the next command.
@@ -40,7 +44,3 @@ If the user inputs an invalid command, nsh simply prints an error message (to st
 # Details
 
 - If the 'ShowTokens' variable has the value 1, nsh prints a list of the tokens, if the syntax for the command is correct or not, before the ouput, if any.
-
-# Variable definition and substitution
-
-When nsh encounters a variable definition, such as `set variable "value"`, it stores the name and definition. Later, when it encounters '$variable', either as a token or within a string, nsh replaces '$variable' with its stored definition. It is valid to modify the definition of a variable by a later definition.
